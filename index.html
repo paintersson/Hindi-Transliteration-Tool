@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hindi Transliteration Tool - Aatmik Geetmala</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        textarea { font-family: monospace; scrollbar-width: thin; }
+        textarea::-webkit-scrollbar { width: 6px; }
+        textarea::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-8 border-b border-slate-200 pb-4 flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-slate-800">Hindi Transliteration Tool</h1>
+                <p class="text-slate-600">Aatmik Geetmala - Devanagari Phonetic Engine</p>
+            </div>
+            <div class="text-xs text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200 self-start shadow-sm">
+                v1.0.0 • Hindi Beta Edition
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <!-- Input Section -->
+            <div class="flex flex-col space-y-4">
+                <!-- Title Extraction Box (Hindi) -->
+                <div class="flex flex-col space-y-1">
+                    <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Extracted Hindi Title</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="hiTitle" readonly class="flex-1 p-2 text-sm border border-slate-300 rounded-lg bg-slate-100 outline-none text-slate-600 font-medium" placeholder="Title will appear here...">
+                        <button onclick="copyTarget('hiTitle', this)" class="p-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-600 rounded-lg text-sm font-medium transition-all shadow-sm active:scale-95 flex items-center justify-center w-10" title="Copy Hindi Title">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col space-y-2">
+                    <label class="font-semibold text-slate-700 flex justify-between">
+                        <span>Hindi Input</span>
+                        <span class="text-xs font-normal text-slate-500 italic">Paste Devanagari lyrics here</span>
+                    </label>
+                    <textarea id="input" class="w-full h-[50vh] p-4 border border-slate-300 rounded-xl shadow-inner focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Paste your Hindi lyrics here... (e.g. तेरी स्तुति मैं करूँ)"></textarea>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button onclick="processText()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-10 rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-95 flex-1 md:flex-none">
+                        Transliterate All
+                    </button>
+                    <div id="status" class="text-sm font-medium text-blue-600 italic"></div>
+                </div>
+            </div>
+
+            <!-- Output Section -->
+            <div class="flex flex-col space-y-4">
+                <!-- Title Extraction Box (English) -->
+                <div class="flex flex-col space-y-1">
+                    <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Extracted English Title</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="engTitle" readonly class="flex-1 p-2 text-sm border border-slate-300 rounded-lg bg-blue-50 outline-none text-blue-800 font-medium" placeholder="Transliterated title...">
+                        <button onclick="copyTarget('engTitle', this)" class="p-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-600 rounded-lg text-sm font-medium transition-all shadow-sm active:scale-95 flex items-center justify-center w-10" title="Copy English Title">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col space-y-2">
+                    <label class="font-semibold text-slate-700 flex justify-between">
+                        <span>English Output</span>
+                        <span class="text-xs font-normal text-slate-500 italic">Copy this to your app database</span>
+                    </label>
+                    <textarea id="output" readonly class="w-full h-[50vh] p-4 border border-slate-300 rounded-xl shadow-inner bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="Transliterated text will appear here..."></textarea>
+                </div>
+                
+                <button onclick="copyToClipboard()" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-lg active:scale-95">
+                    Copy Complete Result
+                </button>
+            </div>
+        </div>
+
+        <section class="mt-12 p-6 bg-white border border-slate-200 rounded-2xl shadow-sm">
+            <h2 class="text-lg font-semibold text-slate-800 mb-4">Active Hindi Phonetic Rules</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                    <div class="text-xs text-slate-400 mb-1">Compound Ks</div>
+                    <div class="font-bold text-slate-700">क्ष → ksha</div>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                    <div class="text-xs text-slate-400 mb-1">Compound Gy</div>
+                    <div class="font-bold text-slate-700">ज्ञ → gya</div>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                    <div class="text-xs text-slate-400 mb-1">Halant (Mute)</div>
+                    <div class="font-bold text-slate-700">् → (removes 'a')</div>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                    <div class="text-xs text-slate-400 mb-1">Schwa Deletion</div>
+                    <div class="font-bold text-slate-700">दिल → dil</div>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                    <div class="text-xs text-slate-400 mb-1">Nasal Sound</div>
+                    <div class="font-bold text-slate-700">ं / ँ → n</div>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                    <div class="text-xs text-slate-400 mb-1">Theological</div>
+                    <div class="font-bold text-slate-700">प्रभु → Prabhu</div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="mt-8 text-slate-400 text-sm text-center">
+            <p>Built for the Aatmik Geetmala Project • 2026</p>
+        </footer>
+    </div>
+
+    <script>
+        // Comprehensive Hindi (Devanagari) to English Mapping
+        const mapping = {
+            // Independent Vowels
+            'अ': 'a', 'आ': 'aa', 'इ': 'i', 'ई': 'ee', 'उ': 'u', 'ऊ': 'oo', 'ऋ': 'ri', 'ए': 'e', 'ऐ': 'ai', 'ओ': 'o', 'औ': 'au',
+            // Consonants (inherent 'a' included)
+            'क': 'ka', 'ख': 'kha', 'ग': 'ga', 'घ': 'gha', 'ङ': 'nga',
+            'च': 'cha', 'छ': 'chha', 'ज': 'ja', 'झ': 'jha', 'ञ': 'nya',
+            'ट': 'ta', 'ठ': 'tha', 'ड': 'da', 'ढ': 'dha', 'ण': 'na',
+            'त': 'ta', 'थ': 'tha', 'द': 'da', 'ध': 'dha', 'न': 'na',
+            'प': 'pa', 'फ': 'pha', 'ब': 'ba', 'भ': 'bha', 'म': 'ma',
+            'य': 'ya', 'र': 'ra', 'ल': 'la', 'व': 'va', 'श': 'sha', 'ष': 'sha', 'स': 'sa', 'ह': 'ha',
+            // Additional & Compound Consonants
+            'ड़': 'ra', 'ढ़': 'rha', 'क्ष': 'ksha', 'त्र': 'tra', 'ज्ञ': 'gya', 'श्र': 'shra',
+            'क़': 'qa', 'ख़': 'kha', 'ग़': 'ga', 'ज़': 'za', 'फ़': 'fa',
+            // Dependent Vowels (Matras)
+            'ा': 'aa', 'ि': 'i', 'ी': 'ee', 'ु': 'u', 'ू': 'oo', 'ृ': 'ri',
+            'े': 'e', 'ै': 'ai', 'ो': 'o', 'ौ': 'au',
+            // Modifiers
+            'ं': 'n', 'ः': 'h', 'ँ': 'n', // Anusvara, Visarga, Chandrabindu
+            '्': '', // Halant (Virama) removes inherent 'a'
+            '।': '.', '॥': '..' // Hindi punctuation (Purna Viram)
+        };
+
+        // Removed modifiers (ं, ः, ँ) from here so they don't incorrectly replace the inherent 'a'
+        const vowelSigns = ['ा', 'ि', 'ी', 'ु', 'ू', 'ृ', 'े', 'ै', 'ो', 'ौ'];
+        const independentVowels = 'अआइईउऊऋएऐओऔ';
+        
+        function capitalizeFirstLetter(string) {
+            if (!string) return string;
+            let str = string.trimStart();
+            if (str.length === 0) return string;
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function transliterateHindi(text) {
+            let result = "";
+            
+            // Pre-process Hindi Punctuation so it acts as standard word boundaries
+            text = text.replace(/।/g, '.').replace(/॥/g, '..');
+
+            for (let i = 0; i < text.length; i++) {
+                let char = text[i];
+                let nextChar = text[i + 1] || "";
+
+                if (mapping[char]) {
+                    // Check if current char is a consonant (ends with 'a' and not an independent vowel)
+                    if (mapping[char].endsWith('a') && char.length === 1 && !independentVowels.includes(char)) {
+                        // If followed by a vowel sign, replace inherent 'a' with the vowel
+                        if (vowelSigns.includes(nextChar)) {
+                            result += mapping[char].slice(0, -1) + mapping[nextChar];
+                            i++;
+                        } 
+                        // If followed by a halant (्), completely remove inherent 'a'
+                        else if (nextChar === '्') {
+                            result += mapping[char].slice(0, -1);
+                            i++;
+                        } 
+                        // Otherwise keep the inherent 'a'
+                        else {
+                            result += mapping[char];
+                        }
+                    } else {
+                        // If it's a mapping but NOT a consonant (e.g., vowel or modifier)
+                        result += mapping[char];
+                    }
+                } else {
+                    // If it's NOT in the mapping (e.g., spaces, English letters, punctuation)
+                    result += char;
+                }
+            }
+        
+            return result
+                // Schwa Deletion: Drop 'a' at the end of a word if preceded by a consonant.
+                // Using \b ensures it perfectly catches ALL punctuation like quotes, commas, etc.
+                .replace(/([bcdfghjklmnpqrstvwxyz])a\b/gi, '$1')
+                // Restore 'a' for common Sanskrit-derived endings (conjuncts) that got stripped
+                .replace(/(tr|gy|ksh|shr|ty|ny|vy|my|dhw|sw)\b/gi, '$1a')
+                // Basic cleanup
+                .replace(/aa-i/g, 'aayi')
+                .replace(/aa-u/g, 'aayu')
+                .replace(/aa-e/g, 'aaye')
+                // Specific theological words
+                .replace(/\bkrip\b/gi, 'Kripa')
+                .replace(/\bprabhu\b/gi, 'Prabhu');
+        }
+
+        function processText() {
+            const inputField = document.getElementById('input');
+            const input = inputField.value;
+            const status = document.getElementById('status');
+            
+            if (!input.trim()) {
+                status.innerText = "Input is empty!";
+                return;
+            }
+
+            status.innerText = "Processing...";
+            
+            setTimeout(() => {
+                const lines = input.split('\n');
+                
+                // Extract Title Logic
+                const validTextLines = lines.filter(line => line.trim() !== '' && !line.includes('===='));
+                
+                let titleLine = null;
+                if (validTextLines.length > 0) {
+                    if (validTextLines[0].trim().startsWith('(')) {
+                        // Skip the first line if it starts with '(', pick the next line as title
+                        titleLine = validTextLines.length > 1 ? validTextLines[1] : null;
+                    } else {
+                        titleLine = validTextLines[0];
+                    }
+                }
+
+                if (titleLine) {
+                    let rawTitle = titleLine.trim();
+                    // Strip "**" at start/end, and numbers like "1. ", "2. "
+                    let cleanTitle = rawTitle.replace(/^\*+/, '').replace(/^\d+\.\s*/, '').replace(/\*+$/, '').trim();
+                    
+                    document.getElementById('hiTitle').value = cleanTitle;
+                    document.getElementById('engTitle').value = capitalizeFirstLetter(transliterateHindi(cleanTitle));
+                } else {
+                    document.getElementById('hiTitle').value = '';
+                    document.getElementById('engTitle').value = '';
+                }
+
+                // Process entire text body
+                const processedLines = lines.map(line => {
+                    let trimmed = line.trim();
+                    
+                    if (!trimmed || /^\d+$/.test(trimmed) || trimmed.includes('====')) {
+                        return line;
+                    }
+
+                    let transliterated = "";
+
+                    if (line.startsWith('**')) {
+                        transliterated = transliterateHindi(line.substring(2));
+                        return '**' + capitalizeFirstLetter(transliterated);
+                    }
+                    
+                    const verseMatch = line.match(/^(\d+\.)\s*(.*)/);
+                    if (verseMatch) {
+                        transliterated = transliterateHindi(verseMatch[2]);
+                        return verseMatch[1] + ' ' + capitalizeFirstLetter(transliterated);
+                    }
+
+                    if (line.trim().startsWith('(')) {
+                        return transliterateHindi(line);
+                    }
+
+                    transliterated = transliterateHindi(line);
+                    return capitalizeFirstLetter(transliterated);
+                });
+                
+                document.getElementById('output').value = processedLines.join('\n');
+                status.innerText = "Success!";
+                setTimeout(() => status.innerText = "", 3000);
+            }, 50);
+        }
+
+        function copyToClipboard() {
+            const output = document.getElementById('output');
+            if (!output.value) return;
+            output.select();
+            document.execCommand('copy');
+            const status = document.getElementById('status');
+            status.innerText = "Copied to clipboard!";
+            setTimeout(() => status.innerText = "", 3000);
+        }
+
+        function copyTarget(elementId, btnElement) {
+            const el = document.getElementById(elementId);
+            if (!el.value) return;
+            el.select();
+            document.execCommand('copy');
+            
+            const originalHTML = btnElement.innerHTML;
+            btnElement.innerHTML = `<svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+            
+            setTimeout(() => {
+                btnElement.innerHTML = originalHTML;
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
