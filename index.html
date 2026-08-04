@@ -131,7 +131,7 @@
             'प': 'pa', 'फ': 'pha', 'ब': 'ba', 'भ': 'bha', 'म': 'ma',
             'य': 'ya', 'र': 'ra', 'ल': 'la', 'व': 'va', 'श': 'sha', 'ष': 'sha', 'स': 'sa', 'ह': 'ha',
             // Additional & Compound Consonants
-            'ड़': 'ra', 'ढ़': 'rha', 'क्ष': 'ksha', 'त्र': 'tra', 'ज्ञ': 'gya', 'श्र': 'shra',
+            'ड़': 'da', 'ढ़': 'dha', 'क्ष': 'ksha', 'त्र': 'tra', 'ज्ञ': 'gya', 'श्र': 'shra',
             'क़': 'qa', 'ख़': 'kha', 'ग़': 'ga', 'ज़': 'za', 'फ़': 'fa',
             // Dependent Vowels (Matras)
             'ा': 'aa', 'ि': 'i', 'ी': 'ee', 'ु': 'u', 'ू': 'oo', 'ृ': 'ri',
@@ -146,7 +146,7 @@
         const vowelSigns = ['ा', 'ि', 'ी', 'ु', 'ू', 'ृ', 'े', 'ै', 'ो', 'ौ'];
         const independentVowels = 'अआइईउऊऋएऐओऔ';
         
-        function capitalizeFirstLetter(string) {
+         function capitalizeFirstLetter(string) {
             if (!string) return string;
             let str = string.trimStart();
             if (str.length === 0) return string;
@@ -154,6 +154,26 @@
         }
 
         function transliterateHindi(text) {
+            // 1. Remove invisible Zero-Width Joiners (common on mobile keyboards)
+            text = text.replace(/[\u200B-\u200D\uFEFF]/g, '');
+
+            // 2. Force explicit combination of detached Nuktas (dots)
+            // This ensures letters like ड़ (da) don't get split into "d" and a dot.
+            text = text.replace(/ड\u093C/g, 'ड़')
+                       .replace(/ढ\u093C/g, 'ढ़')
+                       .replace(/ज\u093C/g, 'ज़')
+                       .replace(/फ\u093C/g, 'फ़')
+                       .replace(/ख\u093C/g, 'ख़')
+                       .replace(/ग\u093C/g, 'ग़')
+                       .replace(/क\u093C/g, 'क़');
+
+            // 3. Normalize Unicode to catch any others
+            text = text.normalize('NFC');
+
+            // 4. PURGE any surviving stray Nuktas.
+            // If a rogue dot is wedged between a consonant and a vowel sign, it breaks the transliteration!
+            text = text.replace(/\u093C/g, '');
+
             let result = "";
             
             // Pre-process Hindi Punctuation so it acts as standard word boundaries
