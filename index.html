@@ -135,9 +135,10 @@
         
         function capitalizeFirstLetter(string) {
             if (!string) return string;
-            let str = string.trimStart();
-            if (str.length === 0) return string;
-            return str.charAt(0).toUpperCase() + str.slice(1);
+            // Capitalize the first letter, AND any letter following a punctuation mark and a space
+            return string.replace(/(^\s*|[.!?]\s+)([a-z])/g, function(match, separator, letter) {
+                return separator + letter.toUpperCase();
+            });
         }
 
         function transliterateHindi(text) {
@@ -180,26 +181,75 @@
             
             // Core Rules Pipeline
             return result
+                // --- USER PREFERENCES (Run early so grammar rules catch them) ---
+                // Word-Ending "ee" sounds better as "i" (Mittee -> Mitti, Kee -> Ki, Teree -> Teri)
+                .replace(/ee\b/gi, 'i')
+
+                // Internal Schwa Deletion (e.g. unake -> unke, karate -> karte, unaki -> unki)
+                .replace(/([bcdfghjklmnpqrstvwxyz])a(ke|ki|ko|ne|te|ta|ti)\b/gi, '$1$2')
+                
                 // Schwa Deletion (Drop implicit 'a' at end of words)
                 .replace(/([bcdfghjklmnpqrstvwxyz])a\b/gi, '$1')
+                
                 // Conjunct Restoration (add 'a' back to specific half-letters)
                 .replace(/tr\b/gi, 'tra')
                 .replace(/ty\b/gi, 'tya')
                 .replace(/shv\b/gi, 'shva')
+                .replace(/ndv\b/gi, 'ndva')
+                .replace(/gn\b/gi, 'gna')
+                .replace(/ry\b/gi, 'rya')
+                .replace(/shy\b/gi, 'shya')
+                .replace(/rn\b/gi, 'rna')
+                .replace(/lp\b/gi, 'lpa')
+                .replace(/dhy\b/gi, 'dhya')
                 
-                // --- USER PREFERENCES ---
-                // Word-Ending "ee" sounds better as "i" (Mittee -> Mitti, Kee -> Ki, Teree -> Teri)
-                .replace(/ee\b/gi, 'i')
-                
-                // Grammar Polish
+                // Grammar Polish & Pronouns
                 .replace(/\bmen\b/gi, 'mein') 
+                .replace(/\bunhen\b/gi, 'unhein')
+                .replace(/\binhen\b/gi, 'inhein')
+                .replace(/\bunhonne\b/gi, 'unhone')
+                .replace(/\bthaa\b/gi, 'tha')
+                .replace(/\bdiyaa\b/gi, 'diya')
+                .replace(/\bkiyaa\b/gi, 'kiya')
+                .replace(/\bliyaa\b/gi, 'liya')
+                .replace(/\bkaa\b/gi, 'ka')
+                .replace(/\bhuaa\b/gi, 'hua')
+                .replace(/\bjaae\b/gi, 'jae')
+                .replace(/\bjaaegaa\b/gi, 'jaega')
+                
+                // Stylistic overrides for formal/Sanskrit vocabulary
+                .replace(/\baadhyaatmik\b/gi, 'adhyatmik')
+                .replace(/\bnirvivaad\b/gi, 'nirvivad')
+                .replace(/\bdekhaa\b/gi, 'dekha')
+                .replace(/\btathaapi\b/gi, 'tathapi')
+                .replace(/\bshringaar\b/gi, 'shringar')
+                .replace(/\badviteey\b/gi, 'advitiya')
+                .replace(/\btrishnaa\b/gi, 'trishna')
+                .replace(/\bkinkartavyavimoodhataa\b/gi, 'kinkartavyavimudhata')
+                .replace(/\bsaanskritik\b/gi, 'sanskritik')
+                .replace(/\bpunarutthaan\b/gi, 'punarutthan')
+                .replace(/\bkshudhaa\b/gi, 'kshudha')
+                .replace(/\bvaichaarik\b/gi, 'vaicharik')
+                .replace(/\bpragalbhataa\b/gi, 'pragalbhata')
+                .replace(/\banivaarya\b/gi, 'anivarya')
+                .replace(/\baudaarya\b/gi, 'audarya')
+                .replace(/\bparipoorna\b/gi, 'paripurna')
+                .replace(/\bpraanaayaam\b/gi, 'pranayama')
+                .replace(/\bbrahmaand\b/gi, 'brahmand')
+                .replace(/\baichchhik\b/gi, 'aicchik')
+                .replace(/\btaatkaalik\b/gi, 'tatkalik')
+                .replace(/\bgoodh\b/gi, 'gudh')
+                .replace(/\bvaagmitaa\b/gi, 'vagmita')
+                .replace(/\bchaaturya\b/gi, 'chatury')
+                .replace(/\bprajvalit\b/gi, 'prajwalit')
+                .replace(/\bsarvochch\b/gi, 'sarvocch')
                 
                 // Reverential Capitalization & Custom Formatting
                 .replace(/\bparameshvar\b/gi, 'Parameshvar')
                 .replace(/\bprabhu\b/gi, 'Prabhu')
                 .replace(/\byeeshu\b/gi, 'Yeeshu')
                 .replace(/\bmaseeh\b/gi, 'Masih') // The "Masih" exception
-                .replace(/\bkhreesht\b/gi, 'Khreesht');
+                .replace(/\bkhreesht\b/gi, 'Khrisht');
         }
 
         function processText() {
