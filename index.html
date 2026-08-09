@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hindi Transliteration Tool - Aatmik Geetmala</title>
+    <title>Generic Hindi Transliteration Tool</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
@@ -18,38 +18,47 @@
         <header class="mb-8 border-b border-slate-200 pb-4 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-slate-800">Hindi Transliteration Tool</h1>
-                <p class="text-slate-600">Aatmik Geetmala - Advanced Devanagari Engine</p>
+                <p class="text-slate-600">Advanced Devanagari to English Engine</p>
             </div>
             <div class="text-xs text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200 self-start shadow-sm">
-                v2.5.0 • Smart Vowel Edition
+                Generic Edition Version 1.0.1
             </div>
         </header>
+
+        <!-- Custom Word Exceptions UI -->
+        <section class="mb-8 p-5 bg-white border border-slate-200 rounded-2xl shadow-sm">
+            <h2 class="text-lg font-semibold text-slate-800 mb-4">Custom Word Exceptions</h2>
+            <div class="flex flex-col md:flex-row gap-4 items-end">
+                <div class="flex-1 w-full">
+                    <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Hindi Word</label>
+                    <input type="text" id="customHin" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="e.g., मसीह">
+                </div>
+                <div class="flex-1 w-full">
+                    <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Preferred Transliteration</label>
+                    <input type="text" id="customEng" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="e.g., Masih">
+                </div>
+                <button onclick="addCustomRule()" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold py-2.5 px-6 rounded-lg transition-all shadow-sm active:scale-95 w-full md:w-auto h-[42px]">
+                    Add Exception
+                </button>
+            </div>
+            <div id="customRulesContainer" class="mt-4 flex flex-wrap gap-2 empty:hidden"></div>
+        </section>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             
             <!-- Input Section -->
             <div class="flex flex-col space-y-4">
-                <div class="flex flex-col space-y-1">
-                    <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Extracted Hindi Title</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="hinTitle" readonly class="flex-1 p-2 text-sm border border-slate-300 rounded-lg bg-slate-100 outline-none text-slate-600 font-medium" placeholder="Title will appear here...">
-                        <button onclick="copyTarget('hinTitle', this)" class="p-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-600 rounded-lg text-sm font-medium transition-all shadow-sm active:scale-95 flex items-center justify-center w-10" title="Copy Hindi Title">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                        </button>
-                    </div>
-                </div>
-
                 <div class="flex flex-col space-y-2">
                     <label class="font-semibold text-slate-700 flex justify-between">
                         <span>Hindi Input</span>
-                        <span class="text-xs font-normal text-slate-500 italic">Paste Devanagari lyrics here</span>
+                        <span class="text-xs font-normal text-slate-500 italic">Paste Devanagari text here</span>
                     </label>
-                    <textarea id="input" class="w-full h-[50vh] p-4 border border-slate-300 rounded-xl shadow-inner focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Paste your Hindi lyrics here..."></textarea>
+                    <textarea id="input" class="w-full h-[50vh] p-4 border border-slate-300 rounded-xl shadow-inner focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Paste your Hindi text here..."></textarea>
                 </div>
                 
                 <div class="flex items-center gap-4">
                     <button onclick="processText()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-10 rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-95 flex-1 md:flex-none">
-                        Transliterate All
+                        Transliterate Text
                     </button>
                     <div id="status" class="text-sm font-medium text-blue-600 italic"></div>
                 </div>
@@ -57,20 +66,10 @@
 
             <!-- Output Section -->
             <div class="flex flex-col space-y-4">
-                <div class="flex flex-col space-y-1">
-                    <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Extracted English Title</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="engTitle" readonly class="flex-1 p-2 text-sm border border-slate-300 rounded-lg bg-blue-50 outline-none text-blue-800 font-medium" placeholder="Transliterated title...">
-                        <button onclick="copyTarget('engTitle', this)" class="p-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-600 rounded-lg text-sm font-medium transition-all shadow-sm active:scale-95 flex items-center justify-center w-10" title="Copy English Title">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                        </button>
-                    </div>
-                </div>
-
                 <div class="flex flex-col space-y-2">
                     <label class="font-semibold text-slate-700 flex justify-between">
                         <span>English Output</span>
-                        <span class="text-xs font-normal text-slate-500 italic">Copy this to your app database</span>
+                        <span class="text-xs font-normal text-slate-500 italic">Resulting transliteration</span>
                     </label>
                     <textarea id="output" readonly class="w-full h-[50vh] p-4 border border-slate-300 rounded-xl shadow-inner bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="Transliterated text will appear here..."></textarea>
                 </div>
@@ -93,10 +92,6 @@
                     <div class="font-bold text-slate-700">पवित्र → pavitra</div>
                 </div>
                 <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
-                    <div class="text-xs text-slate-400 mb-1">Reverence & Custom</div>
-                    <div class="font-bold text-slate-700">मसीह → Masih</div>
-                </div>
-                <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
                     <div class="text-xs text-slate-400 mb-1">Smart Vowels</div>
                     <div class="font-bold text-slate-700">मिट्टी → Mitti</div>
                 </div>
@@ -108,12 +103,12 @@
                     <div class="text-xs text-slate-400 mb-1">Grammar Fix</div>
                     <div class="font-bold text-slate-700">में → mein</div>
                 </div>
+                <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                    <div class="text-xs text-slate-400 mb-1">Custom Overrides</div>
+                    <div class="font-bold text-slate-700">User Defined</div>
+                </div>
             </div>
         </section>
-
-        <footer class="mt-8 text-slate-400 text-sm text-center">
-            <p>Built for the Aatmik Geetmala Project</p>
-        </footer>
     </div>
 
     <script>
@@ -132,19 +127,71 @@
         };
 
         const vowelSigns = ['ा', 'ि', 'ी', 'ु', 'ू', 'ृ', 'े', 'ै', 'ो', 'ौ'];
+        let customExceptions = {};
         
         function capitalizeFirstLetter(string) {
             if (!string) return string;
-            // Capitalize the first letter, AND any letter following a punctuation mark and a space
             return string.replace(/(^\s*|[.!?]\s+)([a-z])/g, function(match, separator, letter) {
                 return separator + letter.toUpperCase();
             });
         }
 
+        function addCustomRule() {
+            const hin = document.getElementById('customHin').value.trim();
+            const eng = document.getElementById('customEng').value.trim();
+            
+            if (hin && eng) {
+                customExceptions[hin] = eng;
+                document.getElementById('customHin').value = '';
+                document.getElementById('customEng').value = '';
+                renderCustomRules();
+                if(document.getElementById('input').value.trim()) {
+                    processText();
+                }
+            }
+        }
+
+        function removeCustomRule(hin) {
+            delete customExceptions[hin];
+            renderCustomRules();
+            if(document.getElementById('input').value.trim()) {
+                processText();
+            }
+        }
+
+        function renderCustomRules() {
+            const container = document.getElementById('customRulesContainer');
+            container.innerHTML = '';
+            for (const [hin, eng] of Object.entries(customExceptions)) {
+                container.innerHTML += `
+                    <div class="flex items-center gap-2 bg-blue-50 text-blue-800 px-3 py-1.5 rounded-lg border border-blue-200 text-sm font-medium shadow-sm">
+                        <span>${hin} &rarr; ${eng}</span>
+                        <button onclick="removeCustomRule('${hin}')" class="text-blue-400 hover:text-blue-700 font-bold ml-1 transition-colors" title="Remove rule">&times;</button>
+                    </div>
+                `;
+            }
+        }
+
         function transliterateHindi(text) {
-            // 1. ZWJ Purge (Removes invisible characters that break formatting)
+            let tokens = {};
+            let tokenCounter = 0;
+
+            // 0. Protect custom exceptions by mapping them to temporary tokens
+            for (const [hin, eng] of Object.entries(customExceptions)) {
+                // Escape regex specials
+                const safeHin = hin.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp(safeHin, 'g');
+                text = text.replace(regex, (match) => {
+                    let token = `__T${tokenCounter}__`;
+                    tokens[token] = eng;
+                    tokenCounter++;
+                    return token;
+                });
+            }
+
+            // 1. ZWJ Purge
             text = text.replace(/[\u200B-\u200D\uFEFF]/g, '');
-            // 2. Force combine Nuktas explicitly (e.g., ड + ़ = ड़)
+            // 2. Force combine Nuktas explicitly
             text = text.replace(/ड\u093C/g, 'ड़').replace(/ढ\u093C/g, 'ढ़').replace(/ज\u093C/g, 'ज़').replace(/फ\u093C/g, 'फ़').replace(/ख\u093C/g, 'ख़').replace(/ग\u093C/g, 'ग़').replace(/क\u093C/g, 'क़');
             // 3. Normalize Unicode
             text = text.normalize('NFC');
@@ -158,7 +205,7 @@
                 let char = text[i];
                 let nextChar = text[i + 1] || "";
 
-                if (char === '्') continue; // Halant skips 'a', handled dynamically
+                if (char === '्') continue; 
 
                 if (mapping[char]) {
                     if (mapping[char].endsWith('a') && char.length >= 1 && !'अआइईउऊऋएऐओऔ'.includes(char)) {
@@ -180,18 +227,10 @@
             }
             
             // Core Rules Pipeline
-            return result
-                // --- USER PREFERENCES (Run early so grammar rules catch them) ---
-                // Word-Ending "ee" sounds better as "i" (Mittee -> Mitti, Kee -> Ki, Teree -> Teri)
+            let processedResult = result
                 .replace(/ee\b/gi, 'i')
-
-                // Internal Schwa Deletion (e.g. unake -> unke, karate -> karte, unaki -> unki)
                 .replace(/([bcdfghjklmnpqrstvwxyz])a(ke|ki|ko|ne|te|ta|ti)\b/gi, '$1$2')
-                
-                // Schwa Deletion (Drop implicit 'a' at end of words)
                 .replace(/([bcdfghjklmnpqrstvwxyz])a\b/gi, '$1')
-                
-                // Conjunct Restoration (add 'a' back to specific half-letters)
                 .replace(/tr\b/gi, 'tra')
                 .replace(/ty\b/gi, 'tya')
                 .replace(/shv\b/gi, 'shva')
@@ -202,8 +241,6 @@
                 .replace(/rn\b/gi, 'rna')
                 .replace(/lp\b/gi, 'lpa')
                 .replace(/dhy\b/gi, 'dhya')
-                
-                // Grammar Polish & Pronouns
                 .replace(/\bmen\b/gi, 'mein') 
                 .replace(/\bunhen\b/gi, 'unhein')
                 .replace(/\binhen\b/gi, 'inhein')
@@ -215,41 +252,14 @@
                 .replace(/\bkaa\b/gi, 'ka')
                 .replace(/\bhuaa\b/gi, 'hua')
                 .replace(/\bjaae\b/gi, 'jae')
-                .replace(/\bjaaegaa\b/gi, 'jaega')
-                
-                // Stylistic overrides for formal/Sanskrit vocabulary
-                .replace(/\baadhyaatmik\b/gi, 'adhyatmik')
-                .replace(/\bnirvivaad\b/gi, 'nirvivad')
-                .replace(/\bdekhaa\b/gi, 'dekha')
-                .replace(/\btathaapi\b/gi, 'tathapi')
-                .replace(/\bshringaar\b/gi, 'shringar')
-                .replace(/\badviteey\b/gi, 'advitiya')
-                .replace(/\btrishnaa\b/gi, 'trishna')
-                .replace(/\bkinkartavyavimoodhataa\b/gi, 'kinkartavyavimudhata')
-                .replace(/\bsaanskritik\b/gi, 'sanskritik')
-                .replace(/\bpunarutthaan\b/gi, 'punarutthan')
-                .replace(/\bkshudhaa\b/gi, 'kshudha')
-                .replace(/\bvaichaarik\b/gi, 'vaicharik')
-                .replace(/\bpragalbhataa\b/gi, 'pragalbhata')
-                .replace(/\banivaarya\b/gi, 'anivarya')
-                .replace(/\baudaarya\b/gi, 'audarya')
-                .replace(/\bparipoorna\b/gi, 'paripurna')
-                .replace(/\bpraanaayaam\b/gi, 'pranayama')
-                .replace(/\bbrahmaand\b/gi, 'brahmand')
-                .replace(/\baichchhik\b/gi, 'aicchik')
-                .replace(/\btaatkaalik\b/gi, 'tatkalik')
-                .replace(/\bgoodh\b/gi, 'gudh')
-                .replace(/\bvaagmitaa\b/gi, 'vagmita')
-                .replace(/\bchaaturya\b/gi, 'chatury')
-                .replace(/\bprajvalit\b/gi, 'prajwalit')
-                .replace(/\bsarvochch\b/gi, 'sarvocch')
-                
-                // Reverential Capitalization & Custom Formatting
-                .replace(/\bparameshvar\b/gi, 'Parameshvar')
-                .replace(/\bprabhu\b/gi, 'Prabhu')
-                .replace(/\byeeshu\b/gi, 'Yeeshu')
-                .replace(/\bmaseeh\b/gi, 'Masih') // The "Masih" exception
-                .replace(/\bkhreesht\b/gi, 'Khrisht');
+                .replace(/\bjaaegaa\b/gi, 'jaega');
+
+            // 6. Restore Custom Exception Tokens (Prevents logic from mutilating the user's custom English words)
+            for (const [token, eng] of Object.entries(tokens)) {
+                processedResult = processedResult.replace(token, eng);
+            }
+
+            return processedResult;
         }
 
         function processText() {
@@ -267,53 +277,12 @@
             setTimeout(() => {
                 const lines = input.split('\n');
                 
-                const validTextLines = lines.filter(line => line.trim() !== '' && !line.includes('===='));
-                
-                let titleLine = null;
-                if (validTextLines.length > 0) {
-                    if (validTextLines[0].trim().startsWith('(')) {
-                        titleLine = validTextLines.length > 1 ? validTextLines[1] : null;
-                    } else {
-                        titleLine = validTextLines[0];
-                    }
-                }
-
-                if (titleLine) {
-                    let rawTitle = titleLine.trim();
-                    let cleanTitle = rawTitle.replace(/^\*+/, '').replace(/^\d+\.\s*/, '').replace(/\*+$/, '').trim();
-                    
-                    document.getElementById('hinTitle').value = cleanTitle;
-                    document.getElementById('engTitle').value = capitalizeFirstLetter(transliterateHindi(cleanTitle));
-                } else {
-                    document.getElementById('hinTitle').value = '';
-                    document.getElementById('engTitle').value = '';
-                }
-
+                // Simplified, generic line processing
                 const processedLines = lines.map(line => {
                     let trimmed = line.trim();
-                    
-                    if (!trimmed || /^\d+$/.test(trimmed) || trimmed.includes('====')) {
-                        return line;
-                    }
+                    if (!trimmed) return line;
 
-                    let transliterated = "";
-
-                    if (line.startsWith('**')) {
-                        transliterated = transliterateHindi(line.substring(2));
-                        return '**' + capitalizeFirstLetter(transliterated);
-                    }
-                    
-                    const verseMatch = line.match(/^(\d+\.)\s*(.*)/);
-                    if (verseMatch) {
-                        transliterated = transliterateHindi(verseMatch[2]);
-                        return verseMatch[1] + ' ' + capitalizeFirstLetter(transliterated);
-                    }
-
-                    if (line.trim().startsWith('(')) {
-                        return transliterateHindi(line);
-                    }
-
-                    transliterated = transliterateHindi(line);
+                    let transliterated = transliterateHindi(line);
                     return capitalizeFirstLetter(transliterated);
                 });
                 
@@ -331,20 +300,6 @@
             const status = document.getElementById('status');
             status.innerText = "Copied to clipboard!";
             setTimeout(() => status.innerText = "", 3000);
-        }
-
-        function copyTarget(elementId, btnElement) {
-            const el = document.getElementById(elementId);
-            if (!el.value) return;
-            el.select();
-            document.execCommand('copy');
-            
-            const originalHTML = btnElement.innerHTML;
-            btnElement.innerHTML = `<svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
-            
-            setTimeout(() => {
-                btnElement.innerHTML = originalHTML;
-            }, 2000);
         }
     </script>
 </body>
